@@ -18,6 +18,12 @@ import io.vertx.ext.web.handler.CorsHandler;
 
 import java.util.UUID;
 
+/**
+ * This verticle defines dispatching routes, starts HTTP server for the web application
+ * and listens for incoming requests on port specificed by system environment variable PORT,
+ * defaults to 8080 if not specified.
+ *
+ */
 public class HttpServerVerticle extends AbstractVerticle {
 
   private static final String CONFIG_SERVICE_PERSISTENCE_QUEUE = "services.queue";

@@ -14,6 +14,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * This verticle is encapsulating persistence and consuming the service queue for incoming messages.
+ * Will take action to read, create, update and delete services in the persistence layer.
+ *
+ */
 public class ServicePersistenceVerticle extends AbstractVerticle {
 
   private static final String CONFIG_SERVICE_PERSISTENCE_QUEUE = "services.queue";
@@ -24,8 +29,8 @@ public class ServicePersistenceVerticle extends AbstractVerticle {
   public void start(Future<Void> startFuture) {
     vertx.eventBus().consumer(config().getString(CONFIG_SERVICE_PERSISTENCE_QUEUE, "services.queue"),
       this::onMessage);
-    startFuture.complete();
     LOGGER.info("ServicePersistenceVerticle deployed");
+    startFuture.complete();
   }
 
   private void onMessage(Message<JsonObject> message) {

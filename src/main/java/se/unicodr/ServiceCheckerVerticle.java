@@ -18,10 +18,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This is a periodic verticle encapsulating service status checking and updating
+ * status and lastCheck for the services checked.
+ *
+ */
 public class ServiceCheckerVerticle extends AbstractVerticle {
 
   private static final long CHECK_SERVICE_INTERVAL = Duration.ofMinutes(1).toMillis();
   private static final String CONFIG_SERVICE_PERSISTENCE_QUEUE = "services.queue";
+  private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
   private static final Logger LOGGER = LoggerFactory.getLogger(ServiceCheckerVerticle.class);
   private String persistenceQueue;
 
@@ -60,13 +66,13 @@ public class ServiceCheckerVerticle extends AbstractVerticle {
           .forEach(service -> {
             String host = service.getUrl().split("://")[1];
             httpClient.get(host, "/", response -> {
-              if (response.statusCode() == HttpResponseStatus.OK.code()) {
+              if (HttpResponseStatus.OK.code() == response.statusCode()) {
                 service.setStatus("OK");
               } else {
                 service.setStatus("FAIL");
               }
               LocalDateTime now = LocalDateTime.now();
-              DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+              DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
               String formatDateTime = now.format(formatter);
               service.setLastCheck(formatDateTime);
               vertx.eventBus().send(persistenceQueue, JsonObject.mapFrom(service), updateServiceOptions, updateReply -> {
